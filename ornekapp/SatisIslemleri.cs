@@ -12,31 +12,26 @@ namespace ornekapp
     {
 
 
-        Random random = new Random();
-        Model model=new Model();
+       
         public int GlobalAdet = 0;
-        SqlConnection sqlBaglantisi = new SqlConnection( "Data Source=DESKTOP-VMQ4RDT;Initial Catalog=marketDB;Integrated Security=True");
+        SqlConnection sqlBaglantisi = new SqlConnection("Data Source=DESKTOP-VMQ4RDT;Initial Catalog=marketDB;Integrated Security=True");
 
 
-        public void sqlCommand( String urun_adi, int urunAdeti, double toplamTutar, DateTime tarih)
+        public void sqlCommand( String urun_adi, int urunAdeti, double toplamTutar, String tarih)
         {
            
             
             try
             {
-                sqlBaglantisi.Open();
-
-                String createSql =  "CREATE TABLE "+Model.name + "(id int IDENTITY(1,1) NOT NULL, Urun_Adi varchar(50), Urun_Adeti nvarchar(50),Toplam_Tutar nvarchar(50),Tarih datetime, PRIMARY KEY(id))";
-                SqlCommand SqlCreateCommand = new SqlCommand( createSql, sqlBaglantisi);
-                SqlCreateCommand.ExecuteNonQuery();
-                String insertSql = "INSERT INTO " +  Model.name + "(Urun_Adi,Urun_Adeti,Toplam_Tutar,Tarih) VALUES(@urunAdi,@urunAdeti,@toplamTutar,@tarih)";
-                SqlCommand SqlCommand = new SqlCommand(insertSql, sqlBaglantisi);
-                SqlCommand.Parameters.AddWithValue("@urunadi", urun_adi);
-                SqlCommand.Parameters.AddWithValue("@urunAdeti", urunAdeti);
-                SqlCommand.Parameters.AddWithValue("@toplamTutar", toplamTutar);
-                SqlCommand.Parameters.AddWithValue("@tarih", tarih);
-                SqlCommand.ExecuteNonQuery();
-                sqlBaglantisi.Close();
+                    sqlBaglantisi.Open();
+                    String insertSql = "INSERT INTO " + Model.name+Model.id + "(Urun_Adi,Urun_Adeti,Toplam_Tutar,Tarih) VALUES(@urunAdi,@urunAdeti,@toplamTutar,@tarih)";
+                    SqlCommand SqlCommand = new SqlCommand(insertSql, sqlBaglantisi);
+                    SqlCommand.Parameters.AddWithValue("@urunadi", urun_adi);
+                    SqlCommand.Parameters.AddWithValue("@urunAdeti", urunAdeti);
+                    SqlCommand.Parameters.AddWithValue("@toplamTutar", toplamTutar);
+                    SqlCommand.Parameters.AddWithValue("@tarih", tarih);
+                    SqlCommand.ExecuteNonQuery();
+                    sqlBaglantisi.Close();      
             }
             catch(Exception ex)
             {
@@ -105,13 +100,30 @@ namespace ornekapp
                 return Convert.ToDouble(deger);
             }
         }
-      
+        public string toplamTutarHesapla()
+        {
+            string tutar="";
+                sqlBaglantisi.Open();
+                string tutarSql = "SELECT sum(Toplam_Tutar) FROM " + Model.name + Model.id;
+                SqlCommand tutarCommand = new SqlCommand(tutarSql, sqlBaglantisi);
+                SqlDataReader read = tutarCommand.ExecuteReader();
+                while (read.Read())
+                    {
+                         tutar = read[0].ToString();
+                    }
+                read.Close();
+                sqlBaglantisi.Close();
+                 return tutar;
+
+        }
+     
 
 
 
-        
-        
-        
+
+
+
+
 
 
     }

@@ -10,44 +10,76 @@ namespace ornekapp
     class Login
     {
         SqlConnection sqlBaglantisi = new SqlConnection("Data Source=DESKTOP-VMQ4RDT;Initial Catalog=marketDB;Integrated Security=True");
-        
+       
+       
 
-        public void musteriGiris(int id, string userName)
+
+        
+        public void musteriKontrol(int id)
         {
-            if (id == null || userName == "")
+            sqlBaglantisi.Open();
+
+
+            String whereSql = "SELECT * FROM customer WHERE  id = @userid";
+            SqlCommand SqlWhereCommand = new SqlCommand(whereSql, sqlBaglantisi);
+            SqlWhereCommand.Parameters.AddWithValue("@userid", id);
+            SqlDataReader dr = SqlWhereCommand.ExecuteReader();
+           
+            if (dr.HasRows)
             {
-                MessageBox.Show("Lütfen Alanları Doldurunuz");
+                MessageBox.Show("Bu id başka bir müşteri tarafıntan kullanılıyor.");
+                Model.kayitDurum = false;
+               
+
             }
             else
             {
-                try
-                {
-                    Model.id = id;
-                    Model.name=userName;
-                    sqlBaglantisi.Open();
-                    String whereSql = "SELECT * FROM costumer WHERE  id = @userid AND userName = @userName";
-                    SqlCommand SqlWhereCommand = new SqlCommand(whereSql, sqlBaglantisi);
-                    SqlWhereCommand.Parameters.AddWithValue("@userid", id);
-                    SqlWhereCommand.Parameters.AddWithValue("@userName", userName);
-                    SqlDataReader dr = SqlWhereCommand.ExecuteReader();
-                    if (dr.HasRows)
-                    {
-                        MessageBox.Show("Hoşgeldiniz: "+Model.name);
-                        
-                    }
-                    else
-                    {
-                        MessageBox.Show("Böyle Bir Müşteri Yok. Lütfen Bİlgilerinizi Kontrol Edin");
-                    }
-                    sqlBaglantisi.Close();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+                Model.kayitDurum =true;
+               
             }
+            dr.Close();
+            sqlBaglantisi.Close();
+
+
 
 
         }
+        public void musteriEkle(string kullaniciAdi,int id)
+        {
+            sqlBaglantisi.Open();
+            try
+            {
+               
+                String insertSql = "INSERT INTO customer (userName,id) VALUES(@kullaniciAdi,@id)";
+                SqlCommand SqlCommand = new SqlCommand(insertSql, sqlBaglantisi);
+                SqlCommand.Parameters.AddWithValue("@kullaniciAdi", kullaniciAdi);
+                SqlCommand.Parameters.AddWithValue("@id",id);
+                SqlCommand.ExecuteNonQuery();
+                MessageBox.Show("Müşteri Başarıyla Eklendi");
+               
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            sqlBaglantisi.Close();
+        }
+        public void musteriDbOlustur(string kullaniciAdi,int id)
+        {
+            sqlBaglantisi.Open();
+            try
+            {
+                
+                String createSql = "CREATE TABLE " + kullaniciAdi + id + " (id int IDENTITY(1,1) NOT NULL, Urun_Adi varchar(50), Urun_Adeti nvarchar(50),Toplam_Tutar float,Tarih nvarchar(50), PRIMARY KEY(id))";
+                SqlCommand SqlCreateCommand = new SqlCommand(createSql, sqlBaglantisi);
+                SqlCreateCommand.ExecuteNonQuery();
+              
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Bir Hata Oluştu");
+            }
+            sqlBaglantisi.Close();
+        } 
     }
 }
